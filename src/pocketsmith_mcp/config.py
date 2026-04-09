@@ -2,10 +2,26 @@
 
 import os
 from dataclasses import dataclass
+from typing import Literal, cast
 
 from dotenv import load_dotenv
 
 from pocketsmith_mcp.errors import ConfigurationError
+
+McpTransport = Literal["stdio", "sse", "streamable-http"]
+
+MCP_TRANSPORT_CHOICES: frozenset[str] = frozenset({"stdio", "sse", "streamable-http"})
+
+
+def parse_mcp_transport(raw: str | None) -> McpTransport:
+    """Parse MCP_TRANSPORT; default ``stdio``. Raises ConfigurationError if invalid."""
+    value = (raw or "stdio").strip().lower()
+    if value not in MCP_TRANSPORT_CHOICES:
+        choices = ", ".join(sorted(MCP_TRANSPORT_CHOICES))
+        raise ConfigurationError(
+            f"MCP_TRANSPORT must be one of {choices}, got {value!r}"
+        )
+    return cast(McpTransport, value)
 
 
 @dataclass
@@ -20,6 +36,7 @@ class Config:
     api_timeout: float = 30.0
     max_retries: int = 3
     rate_limit_per_minute: int = 60
+    mcp_transport: McpTransport = "stdio"
 
     # API settings
     base_url: str = "https://api.pocketsmith.com/v2"
@@ -64,6 +81,7 @@ class Config:
             api_timeout=float(os.getenv("API_TIMEOUT", "30")),
             max_retries=int(os.getenv("MAX_RETRIES", "3")),
             rate_limit_per_minute=int(os.getenv("RATE_LIMIT_PER_MINUTE", "60")),
+            mcp_transport=parse_mcp_transport(os.getenv("MCP_TRANSPORT")),
         )
 
     def validate(self) -> None:

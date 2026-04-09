@@ -76,6 +76,22 @@ export POCKETSMITH_API_KEY=your_api_key_here
 uvx pocketsmith-mcp
 ```
 
+### Docker (streamable HTTP)
+
+The image installs the package and its dependencies **at build time** with `pip` inside the container. You do not need Python, `uv`, or `pip` on the host—only Docker.
+
+1. Copy `.env.example` to `.env` and set `POCKETSMITH_API_KEY`.
+2. From the **repository root** (the directory that contains `docker-compose.yml`), build and run:
+
+```bash
+cd /path/to/mcp_pocketsmith
+docker compose up --build
+```
+
+By default, Compose sets streamable HTTP on port **8000** (`MCP_TRANSPORT`, `FASTMCP_HOST`, `FASTMCP_PORT`). The MCP endpoint is typically `http://localhost:8000/mcp` unless you change `FASTMCP_STREAMABLE_HTTP_PATH` in your environment.
+
+The server must listen on **`0.0.0.0`** inside the container so Docker can forward port 8000 to your Mac; `FASTMCP_HOST` is applied when creating the server. A plain browser visit to `http://127.0.0.1:8000/` may show nothing or 404—the protocol is served on **`/mcp`**, for MCP clients, not a generic web UI.
+
 ---
 
 ## Claude Desktop Integration

@@ -1,5 +1,6 @@
 """FastMCP server creation and configuration for PocketSmith."""
 
+import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -63,11 +64,21 @@ def create_server(api_key: str | None = None) -> FastMCP:
 
     @asynccontextmanager
     async def lifespan(server: FastMCP) -> AsyncIterator[None]:
-        """Resolve user_id at startup before serving requests."""
-        user_ctx.user_id = await _resolve_user_id(client)
+        """Resolve user_id before serving requests (once per process; HTTP may re-enter lifespan)."""
+        if not user_ctx.is_resolved:
+            user_ctx.user_id = await _resolve_user_id(client)
         yield
 
-    mcp = FastMCP("pocketsmith-mcp", lifespan=lifespan)
+    # Env FASTMCP_HOST/FASTMCP_PORT are not applied unless passed into FastMCP().
+    http_host = os.getenv("FASTMCP_HOST", "127.0.0.1")
+    http_port = int(os.getenv("FASTMCP_PORT", "8000"))
+
+    mcp = FastMCP(
+        "pocketsmith-mcp",
+        lifespan=lifespan,
+        host=http_host,
+        port=http_port,
+    )
 
     register_all_tools(mcp, client, user_ctx)
 

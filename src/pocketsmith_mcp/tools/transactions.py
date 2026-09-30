@@ -21,7 +21,6 @@ def register_transaction_tools(mcp: FastMCP, client: PocketSmithClient, user_ctx
         start_date: str | None = None,
         end_date: str | None = None,
         updated_since: str | None = None,
-        category_id: int | None = None,
         search: str | None = None,
         uncategorised: bool = False,
         needs_review: bool = False,
@@ -35,7 +34,6 @@ def register_transaction_tools(mcp: FastMCP, client: PocketSmithClient, user_ctx
             start_date: Filter transactions on/after date (YYYY-MM-DD)
             end_date: Filter transactions on/before date (YYYY-MM-DD)
             updated_since: Filter by last update time (ISO 8601)
-            category_id: Filter by category ID
             search: Search transactions by payee/memo
             uncategorised: Only show uncategorised transactions
             needs_review: Only show transactions needing review
@@ -53,8 +51,6 @@ def register_transaction_tools(mcp: FastMCP, client: PocketSmithClient, user_ctx
                 params["end_date"] = end_date
             if updated_since:
                 params["updated_since"] = updated_since
-            if category_id:
-                params["category_id"] = category_id
             if search:
                 params["search"] = search
             if uncategorised:

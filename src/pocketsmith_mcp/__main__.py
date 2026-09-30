@@ -6,13 +6,15 @@ This module allows running the server as:
     uv run pocketsmith-mcp
 """
 
+from pocketsmith_mcp.config import get_config
 from pocketsmith_mcp.server import get_server
 
 
 def main() -> None:
     """Run the PocketSmith MCP server."""
+    config = get_config()
     server = get_server()
-    server.run()
+    server.run(transport=config.mcp_transport)
 
 
 if __name__ == "__main__":

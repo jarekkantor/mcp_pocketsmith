@@ -14,6 +14,13 @@ class TestUserContext:
         ctx.user_id = 42
         assert ctx.user_id == 42
 
+    def test_is_resolved(self):
+        """is_resolved is False until user_id is set."""
+        ctx = UserContext()
+        assert ctx.is_resolved is False
+        ctx.user_id = 42
+        assert ctx.is_resolved is True
+
     def test_initial_value(self):
         """Test that initial value of 0 raises."""
         ctx = UserContext()
@@ -25,8 +32,15 @@ class TestUserContext:
         ctx = UserContext(user_id=99)
         assert ctx.user_id == 99
 
-    def test_set_once_only(self):
-        """Setting user_id twice should raise RuntimeError."""
+    def test_set_same_user_id_is_idempotent(self):
+        """Assigning the same user_id twice is allowed."""
+        ctx = UserContext()
+        ctx.user_id = 42
+        ctx.user_id = 42
+        assert ctx.user_id == 42
+
+    def test_set_different_user_id_after_first_raises(self):
+        """A different user_id after the first set raises."""
         ctx = UserContext()
         ctx.user_id = 42
         with pytest.raises(RuntimeError, match="user_id has already been set"):

@@ -58,6 +58,26 @@ def register_attachment_tools(mcp: FastMCP, client: PocketSmithClient, user_ctx:
             raise ValueError(f"Failed to list attachments: {e}")
 
     @mcp.tool()
+    async def list_attachments_in_transaction(
+        transaction_id: int,
+    ) -> str:
+        """
+        List all attachments in a transaction.
+
+        Args:
+            transaction_id: The transaction ID
+
+        Returns:
+            JSON array of attachments
+        """
+        try:
+            result = await client.get(f"/transactions/{transaction_id}/attachments")
+            return json.dumps(result, indent=2)
+        except Exception as e:
+            logger.error(f"list_attachments_in_transaction failed: {e}")
+            raise ValueError(f"Failed to list attachments in transaction {transaction_id}: {e}")
+
+    @mcp.tool()
     async def get_attachment(attachment_id: int) -> str:
         """
         Get details of a specific attachment.
